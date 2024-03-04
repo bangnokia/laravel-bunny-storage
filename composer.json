@@ -1,0 +1,21 @@
+{
+    "name": "bangnokia/laravel-bunny-storage",
+    "description": "Use Bunny Storage in Laravel application",
+    "type": "library",
+    "require": {
+        "platformcommunity/flysystem-bunnycdn": "^3.3",
+        "illuminate/support": "^10.46"
+    },
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Bangnokia\\LaravelBunnyStorage\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "bangnokia",
+            "email": "bangnokia@gmail.com"
+        }
+    ]
+}
