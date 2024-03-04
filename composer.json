@@ -4,7 +4,15 @@
     "type": "library",
     "require": {
         "platformcommunity/flysystem-bunnycdn": "^3.3",
-        "illuminate/support": "^10.46"
+        "illuminate/support": "^10.46",
+        "illuminate/filesystem": "^10.46"
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Bangnokia\\LaravelBunnyStorage\\BunnyStorageServiceProvider"
+            ]
+        }
     },
     "license": "MIT",
     "autoload": {
