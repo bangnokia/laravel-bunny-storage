@@ -1,3 +1,5 @@
+<img src="https://bunny.net/static/bunnynet-dark-d6a41260b1e4b665cb2dc413e3eb84ca.svg">
+
 # Bunny Storage for Laravel
 
 This package is just a wrapper for Laravel of the [flysystem-bunnycdn](https://github.com/PlatformCommunity/flysystem-bunnycdn) package for simple integration with Laravel.
