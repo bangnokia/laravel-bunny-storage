@@ -20,7 +20,7 @@ class BunnyStorageServiceProvider extends ServiceProvider
                     $config['api_key'],
                     $config['region']
                 ),
-                $config['pull_zone']
+                $config['pull_zone'] ?? ''
             );
 
             return new FilesystemAdapter(
