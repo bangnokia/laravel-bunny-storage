@@ -68,6 +68,4 @@ class BunnyStorageClient extends BunnyCDNClient
 
         return parent::delete($path);
     }
-
-
 }
