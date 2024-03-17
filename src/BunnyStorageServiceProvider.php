@@ -7,7 +7,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
 use PlatformCommunity\Flysystem\BunnyCDN\BunnyCDNAdapter;
-use PlatformCommunity\Flysystem\BunnyCDN\BunnyCDNClient;
 
 class BunnyStorageServiceProvider extends ServiceProvider
 {
@@ -15,10 +14,11 @@ class BunnyStorageServiceProvider extends ServiceProvider
     {
         Storage::extend('bunny', function($app, $config) {
             $adapter = new BunnyCDNAdapter(
-                new BunnyCDNClient(
+                new BunnyStorageClient(
                     $config['storage_zone'],
                     $config['api_key'],
-                    $config['region']
+                    $config['region'],
+                    $config['root'] ?? ''
                 ),
                 $config['pull_zone'] ?? ''
             );
