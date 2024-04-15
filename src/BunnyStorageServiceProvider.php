@@ -31,9 +31,11 @@ class BunnyStorageServiceProvider extends ServiceProvider
 
             $pathPrefixedAdapter =  new PathPrefixedAdapter($adapter, $root);
 
+            $filesystem = new Filesystem($pathPrefixedAdapter, $config);
+
             return new FilesystemAdapter(
-                new Filesystem($pathPrefixedAdapter, $config),
-                $pathPrefixedAdapter,
+                $filesystem,
+                $adapter,
                 $config
             );
         });
