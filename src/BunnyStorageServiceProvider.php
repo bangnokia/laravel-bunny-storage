@@ -6,7 +6,7 @@ use Illuminate\Filesystem\FilesystemAdapter;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
-use PlatformCommunity\Flysystem\BunnyCDN\BunnyCDNAdapter;
+use League\Flysystem\PathPrefixing\PathPrefixedAdapter;
 
 class BunnyStorageServiceProvider extends ServiceProvider
 {
@@ -20,19 +20,20 @@ class BunnyStorageServiceProvider extends ServiceProvider
                 $pullZoneUrl = rtrim($pullZoneUrl, '/') . '/' . ltrim($root, '/');
             }
 
-            $adapter = new BunnyCDNAdapter(
+            $adapter = new BunnyStorageAdapter(
                 new BunnyStorageClient(
                     $config['storage_zone'],
                     $config['api_key'],
                     $config['region'],
-                    $root
                 ),
                 $pullZoneUrl
             );
 
+            $pathPrefixedAdapter =  new PathPrefixedAdapter($adapter, $root);
+
             return new FilesystemAdapter(
-                new Filesystem($adapter, $config),
-                $adapter,
+                new Filesystem($pathPrefixedAdapter, $config),
+                $pathPrefixedAdapter,
                 $config
             );
         });

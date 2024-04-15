@@ -4,8 +4,9 @@
     "type": "library",
     "require": {
         "platformcommunity/flysystem-bunnycdn": "^3.3",
-        "illuminate/support": "^10.46",
-        "illuminate/filesystem": "^10.46"
+        "illuminate/support": "^10.46|^11",
+        "illuminate/filesystem": "^10.46|^11",
+        "league/flysystem-path-prefixing": "^3.3"
     },
     "extra": {
         "laravel": {
