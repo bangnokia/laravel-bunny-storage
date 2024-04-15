@@ -29,9 +29,12 @@ class BunnyStorageServiceProvider extends ServiceProvider
                 $pullZoneUrl
             );
 
-            $pathPrefixedAdapter =  new PathPrefixedAdapter($adapter, $root);
-
-            $filesystem = new Filesystem($pathPrefixedAdapter, $config);
+            if ($root) {
+                $pathPrefixedAdapter =  new PathPrefixedAdapter($adapter, $root);
+                $filesystem = new Filesystem($pathPrefixedAdapter, $config);
+            } else {
+                $filesystem = new Filesystem($adapter, $config);
+            }
 
             return new FilesystemAdapter(
                 $filesystem,
