@@ -30,7 +30,7 @@ and remember to add the environment variables in your `.env` file:
 BUNNY_STORAGE_ZONE=your-storage-zone
 BUNNY_API_KEY=your-api-key
 #BUNNY_REGION=your-region
-#BUNNY_PULL_ZONE=your-pull-zone
+#BUNNY_PULL_ZONE=https://your-pull-zone-url
 ```
 
 
