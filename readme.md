@@ -27,10 +27,10 @@ This package automatically register the service provider and the storage disk fo
 and remember to add the environment variables in your `.env` file:
 
 ```dotenv
-BUNNY_STORAGE_ZONE=your-storage-zone
-BUNNY_API_KEY=your-api-key
-#BUNNY_REGION=your-region
-#BUNNY_PULL_ZONE=https://your-pull-zone-url
+BUNNY_STORAGE_ZONE=your-storage-zone-name
+BUNNY_API_KEY=your-api-key (it's password in bunny)
+#BUNNY_REGION=your-region (optional)
+#BUNNY_PULL_ZONE="https://your-pull-zone-url" (optional if you want to access the file publicly)
 ```
 
 
