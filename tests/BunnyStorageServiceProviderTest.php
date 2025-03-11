@@ -3,6 +3,7 @@
 namespace Bangnokia\LaravelBunnyStorage\Tests;
 
 use Bangnokia\LaravelBunnyStorage\BunnyStorageAdapter;
+use Bangnokia\LaravelBunnyStorage\BunnyStorageServiceProvider;
 use Illuminate\Filesystem\FilesystemAdapter;
 use League\Flysystem\Filesystem;
 use Orchestra\Testbench\TestCase;
@@ -11,7 +12,7 @@ class BunnyStorageServiceProviderTest extends TestCase
 {
     protected function getPackageProviders($app)
     {
-        return ['Bangnokia\LaravelBunnyStorage\BunnyStorageServiceProvider'];
+        return [BunnyStorageServiceProvider::class];
     }
 
     protected function setUp(): void
