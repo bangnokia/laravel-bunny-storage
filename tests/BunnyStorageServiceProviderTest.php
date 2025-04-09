@@ -10,7 +10,7 @@ use Orchestra\Testbench\TestCase;
 
 class BunnyStorageServiceProviderTest extends TestCase
 {
-    protected function getPackageProviders($app)
+    protected function getPackageProviders($app): array
     {
         return [BunnyStorageServiceProvider::class];
     }
@@ -32,8 +32,7 @@ class BunnyStorageServiceProviderTest extends TestCase
         ]);
     }
 
-    /** @test */
-    public function it_registers_bunny_storage_driver()
+    public function test_it_registers_bunny_storage_driver()
     {
         $filesystem = $this->app['filesystem'];
         $disk = $filesystem->disk('bunny');

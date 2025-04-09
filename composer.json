@@ -25,6 +25,11 @@
             "Bangnokia\\LaravelBunnyStorage\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Bangnokia\\LaravelBunnyStorage\\Tests\\": "tests/"
+        }
+    },
     "authors": [
         {
             "name": "bangnokia",

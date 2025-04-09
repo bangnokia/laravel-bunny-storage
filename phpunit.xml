@@ -5,7 +5,7 @@
          colors="true">
     <testsuites>
         <testsuite name="Laravel Bunny Storage Test Suite">
-            <directory suffix="Test.php">./tests</directory>
+            <directory>./tests</directory>
         </testsuite>
     </testsuites>
     <php>
