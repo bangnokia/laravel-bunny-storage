@@ -2,9 +2,9 @@
 
 namespace Bangnokia\LaravelBunnyStorage\Tests;
 
+use Bangnokia\LaravelBunnyStorage\BunnyStorageServiceProvider;
 use Bangnokia\LaravelBunnyStorage\StreamingBunnyStorageAdapter;
 use Bangnokia\LaravelBunnyStorage\StreamingBunnyStorageClient;
-use Bangnokia\LaravelBunnyStorage\BunnyStorageServiceProvider;
 use Orchestra\Testbench\TestCase;
 
 class StreamingBunnyStorageAdapterTest extends TestCase
@@ -58,7 +58,15 @@ class StreamingBunnyStorageAdapterTest extends TestCase
         $adapter = $adapterProperty->getValue($driver);
 
         $adapterReflection = new \ReflectionClass($adapter);
+
+        while ($adapterReflection && ! $adapterReflection->hasProperty('client')) {
+            $adapterReflection = $adapterReflection->getParentClass();
+        }
+
+        $this->assertNotFalse($adapterReflection);
+
         $clientProperty = $adapterReflection->getProperty('client');
+        $clientProperty->setAccessible(true);
         $client = $clientProperty->getValue($adapter);
 
         $this->assertInstanceOf(StreamingBunnyStorageClient::class, $client);
@@ -78,6 +86,8 @@ class StreamingBunnyStorageAdapterTest extends TestCase
             ->with('test-path.txt', $stream);
 
         $adapter->write('test-path.txt', $stream, new \League\Flysystem\Config());
+
+        fclose($stream);
     }
 
     public function test_writeStream_accepts_stream_resources()
@@ -94,6 +104,8 @@ class StreamingBunnyStorageAdapterTest extends TestCase
             ->with('test-path.txt', $stream);
 
         $adapter->writeStream('test-path.txt', $stream, new \League\Flysystem\Config());
+
+        fclose($stream);
     }
 
     public function test_write_falls_back_to_parent_for_strings()
@@ -106,27 +118,18 @@ class StreamingBunnyStorageAdapterTest extends TestCase
         $client->expects($this->never())
             ->method('uploadStream');
 
+        $client->expects($this->once())
+            ->method('upload')
+            ->with('test-path.txt', $content);
+
         $adapter->write('test-path.txt', $content, new \League\Flysystem\Config());
-    }
-
-    public function test_writeStream_falls_back_to_parent_for_non_resources()
-    {
-        $client = $this->createMockClient();
-        $adapter = new StreamingBunnyStorageAdapter($client, '');
-
-        $content = 'string content';
-
-        $client->expects($this->never())
-            ->method('uploadStream');
-
-        $adapter->writeStream('test-path.txt', $content, new \League\Flysystem\Config());
     }
 
     private function createMockClient()
     {
         return $this->getMockBuilder(StreamingBunnyStorageClient::class)
             ->disableOriginalConstructor()
-            ->onlyMethods(['uploadStream'])
+            ->onlyMethods(['uploadStream', 'upload'])
             ->getMock();
     }
 }
