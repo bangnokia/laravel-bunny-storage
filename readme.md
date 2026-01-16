@@ -42,6 +42,50 @@ Storage::disk('bunny')->put('index.html', '<html>Hello World</html>');
 return response(Storage::disk('bunny')->get('index.html'));
 ```
 
+## Streaming Support
+
+This package includes **streaming support** for large file uploads, which significantly reduces memory usage.
+
+### Memory Efficient Uploads
+
+When uploading large files (e.g., database backups, videos), the streaming adapter automatically:
+
+1. Detects when a file stream/resource is provided
+2. Streams the file directly to BunnyCDN without loading into memory
+3. Reduces memory usage from O(file_size) to O(buffer_size)
+
+### Example: Large File Upload
+
+```php
+// Efficient streaming - memory stays low (~8-16MB buffer)
+$stream = fopen('/path/to/large-file.zip', 'r');
+Storage::disk('bunny')->put('backup.zip', $stream);
+fclose($stream);
+
+// This also works with writeStream
+Storage::disk('bunny')->writeStream('backup.zip', $stream);
+```
+
+### Memory Comparison
+
+| Approach | File Size | Memory Usage |
+|----------|-----------|--------------|
+| String upload (old way) | 500MB | ~500MB |
+| Stream upload (this package) | 500MB | ~8-16MB |
+
+### Backward Compatibility
+
+The package remains fully backward compatible:
+
+```php
+// String uploads still work as before
+Storage::disk('bunny')->put('file.txt', 'content');
+
+// Stream uploads are now memory-efficient
+$stream = fopen('file.txt', 'r');
+Storage::disk('bunny')->put('file.txt', $stream);
+```
+
 
 ## Regions
 For a full region list, please visit the [BunnyCDN API documentation page](https://docs.bunny.net/reference/regionpublic_index).
