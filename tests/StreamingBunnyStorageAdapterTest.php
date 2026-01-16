@@ -3,9 +3,9 @@
 namespace Bangnokia\LaravelBunnyStorage\Tests;
 
 use Bangnokia\LaravelBunnyStorage\StreamingBunnyStorageAdapter;
-use Bangnokia\LaravelBunnyStorage\StreamingBunnyStorageClient;
-use Bangnokia\LaravelBunnyStorage\BunnyStorageServiceProvider;
 use Orchestra\Testbench\TestCase;
+use PlatformCommunity\Flysystem\BunnyCDN\BunnyCDNClient;
+use PlatformCommunity\Flysystem\BunnyCDN\BunnyCDNRegion;
 
 class StreamingBunnyStorageAdapterTest extends TestCase
 {
@@ -44,7 +44,7 @@ class StreamingBunnyStorageAdapterTest extends TestCase
         $this->assertInstanceOf(StreamingBunnyStorageAdapter::class, $adapter);
     }
 
-    public function test_it_uses_streaming_client()
+    public function test_it_uses_bunny_cdn_client()
     {
         $filesystem = $this->app['filesystem'];
         $disk = $filesystem->disk('bunny');
@@ -61,72 +61,70 @@ class StreamingBunnyStorageAdapterTest extends TestCase
         $clientProperty = $adapterReflection->getProperty('client');
         $client = $clientProperty->getValue($adapter);
 
-        $this->assertInstanceOf(StreamingBunnyStorageClient::class, $client);
+        $this->assertInstanceOf(BunnyCDNClient::class, $client);
     }
 
     public function test_write_accepts_stream_resources()
     {
-        $client = $this->createMockClient();
-        $adapter = new StreamingBunnyStorageAdapter($client, '');
+        $disk = $this->app['filesystem']->disk('bunny');
 
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, 'test content');
         rewind($stream);
 
-        $client->expects($this->once())
-            ->method('uploadStream')
-            ->with('test-path.txt', $stream);
+        $disk->put('test-path.txt', $stream);
+        fclose($stream);
 
-        $adapter->write('test-path.txt', $stream, new \League\Flysystem\Config());
+        $this->assertFileExists('test-path.txt');
     }
 
     public function test_writeStream_accepts_stream_resources()
     {
-        $client = $this->createMockClient();
-        $adapter = new StreamingBunnyStorageAdapter($client, '');
+        $disk = $this->app['filesystem']->disk('bunny');
 
         $stream = fopen('php://memory', 'r+');
         fwrite($stream, 'test content');
         rewind($stream);
 
-        $client->expects($this->once())
-            ->method('uploadStream')
-            ->with('test-path.txt', $stream);
+        $disk->writeStream('test-path.txt', $stream);
+        fclose($stream);
 
-        $adapter->writeStream('test-path.txt', $stream, new \League\Flysystem\Config());
+        $this->assertFileExists('test-path.txt');
     }
 
     public function test_write_falls_back_to_parent_for_strings()
     {
-        $client = $this->createMockClient();
-        $adapter = new StreamingBunnyStorageAdapter($client, '');
+        $disk = $this->app['filesystem']->disk('bunny');
 
         $content = 'string content';
 
-        $client->expects($this->never())
-            ->method('uploadStream');
+        $disk->write('test-path.txt', $content);
 
-        $adapter->write('test-path.txt', $content, new \League\Flysystem\Config());
+        $this->assertFileExists('test-path.txt');
     }
 
     public function test_writeStream_falls_back_to_parent_for_non_resources()
     {
-        $client = $this->createMockClient();
-        $adapter = new StreamingBunnyStorageAdapter($client, '');
+        $disk = $this->app['filesystem']->disk('bunny');
 
         $content = 'string content';
 
-        $client->expects($this->never())
-            ->method('uploadStream');
+        $disk->writeStream('test-path.txt', $content);
 
-        $adapter->writeStream('test-path.txt', $content, new \League\Flysystem\Config());
+        $this->assertFileExists('test-path.txt');
     }
 
-    private function createMockClient()
+    public function test_file_is_stored_correctly_on_bunny()
     {
-        return $this->getMockBuilder(StreamingBunnyStorageClient::class)
-            ->disableOriginalConstructor()
-            ->onlyMethods(['uploadStream'])
-            ->getMock();
+        $disk = $this->app['filesystem']->disk('bunny');
+
+        $stream = fopen('php://memory', 'r+');
+        fwrite($stream, 'test content for bunny');
+        rewind($stream);
+
+        $disk->put('test/bunny-file.txt', $stream);
+        fclose($stream);
+
+        $this->assertTrue($disk->exists('test/bunny-file.txt'));
     }
 }
