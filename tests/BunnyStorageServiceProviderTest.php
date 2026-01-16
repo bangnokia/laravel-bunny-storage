@@ -2,8 +2,8 @@
 
 namespace Bangnokia\LaravelBunnyStorage\Tests;
 
-use Bangnokia\LaravelBunnyStorage\BunnyStorageAdapter;
 use Bangnokia\LaravelBunnyStorage\BunnyStorageServiceProvider;
+use Bangnokia\LaravelBunnyStorage\StreamingBunnyStorageAdapter;
 use Illuminate\Filesystem\FilesystemAdapter;
 use League\Flysystem\Filesystem;
 use Orchestra\Testbench\TestCase;
@@ -52,6 +52,6 @@ class BunnyStorageServiceProviderTest extends TestCase
         // Use PHP 8+ compatible approach
         $adapter = $adapterProperty->getValue($driver);
 
-        $this->assertInstanceOf(BunnyStorageAdapter::class, $adapter);
+        $this->assertInstanceOf(StreamingBunnyStorageAdapter::class, $adapter);
     }
 }

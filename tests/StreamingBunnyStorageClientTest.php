@@ -52,8 +52,7 @@ class StreamingBunnyStorageClientTest extends TestCase
         $request = $method->invoke($client, '/leading/slash/path.txt', $stream);
         $uri = $request->getUri();
 
-        $this->assertStringNotStartsWith('//', (string) $uri);
-        $this->assertStringNotStartsWith('/', parse_url((string) $uri, PHP_URL_PATH));
+        $this->assertStringNotContainsString('//', (string) parse_url((string) $uri, PHP_URL_PATH));
 
         fclose($stream);
     }
