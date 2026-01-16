@@ -10,6 +10,7 @@ use PlatformCommunity\Flysystem\BunnyCDN\Exceptions\BunnyCDNException;
 class StreamingBunnyStorageClient extends BaseClient
 {
     private static ?\ReflectionMethod $requestMethod = null;
+    private static ?\ReflectionMethod $createRequestMethod = null;
 
     public function uploadStream(string $path, $stream): mixed
     {
@@ -59,7 +60,7 @@ class StreamingBunnyStorageClient extends BaseClient
     {
         $path = ltrim($path, '/');
 
-        return $this->createRequest(
+        return $this->invokeCreateRequest(
             $path,
             'PUT',
             [
@@ -68,6 +69,17 @@ class StreamingBunnyStorageClient extends BaseClient
             ],
             $stream
         );
+    }
+
+    private function invokeCreateRequest(string $path, string $method, array $headers, $body): Request
+    {
+        if (self::$createRequestMethod === null) {
+            $reflection = new \ReflectionClass(BaseClient::class);
+            self::$createRequestMethod = $reflection->getMethod('createRequest');
+            self::$createRequestMethod->setAccessible(true);
+        }
+
+        return self::$createRequestMethod->invoke($this, $path, $method, $headers, $body);
     }
 
     private function getStreamSize($stream): string
