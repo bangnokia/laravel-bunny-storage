@@ -9,19 +9,50 @@ use PlatformCommunity\Flysystem\BunnyCDN\Exceptions\BunnyCDNException;
 
 class StreamingBunnyStorageClient extends BaseClient
 {
+    private static ?\ReflectionMethod $requestMethod = null;
+
     public function uploadStream(string $path, $stream): mixed
     {
+        $this->validateStream($stream);
+        $this->resetStreamPosition($stream);
+
         try {
             $request = $this->getUploadStreamRequest($path, $stream);
 
-            $reflection = new \ReflectionClass(BaseClient::class);
-            $method = $reflection->getMethod('request');
-            $method->setAccessible(true);
-
-            return $method->invoke($this, $request);
+            return $this->invokeRequest($request);
         } catch (GuzzleException $e) {
             throw new BunnyCDNException($e->getMessage());
         }
+    }
+
+    private function validateStream($stream): void
+    {
+        if (!is_resource($stream)) {
+            throw new BunnyCDNException('Stream must be a valid resource');
+        }
+
+        $meta = stream_get_meta_data($stream);
+        if (!in_array($meta['type'], ['STDIO', 'TEMP', 'MEMORY'])) {
+            throw new BunnyCDNException('Invalid stream type: ' . $meta['type']);
+        }
+    }
+
+    private function resetStreamPosition($stream): void
+    {
+        if (stream_get_meta_data($stream)['seekable']) {
+            rewind($stream);
+        }
+    }
+
+    private function invokeRequest(Request $request): mixed
+    {
+        if (self::$requestMethod === null) {
+            $reflection = new \ReflectionClass(BaseClient::class);
+            self::$requestMethod = $reflection->getMethod('request');
+            self::$requestMethod->setAccessible(true);
+        }
+
+        return self::$requestMethod->invoke($this, $request);
     }
 
     private function getUploadStreamRequest(string $path, $stream): Request
@@ -33,8 +64,24 @@ class StreamingBunnyStorageClient extends BaseClient
             'PUT',
             [
                 'Content-Type' => 'application/octet-stream',
+                'Content-Length' => $this->getStreamSize($stream),
             ],
             $stream
         );
+    }
+
+    private function getStreamSize($stream): string
+    {
+        $stats = fstat($stream);
+        if ($stats === false) {
+            return '0';
+        }
+
+        $size = $stats['size'];
+        if ($size < 0) {
+            return '0';
+        }
+
+        return (string) $size;
     }
 }
