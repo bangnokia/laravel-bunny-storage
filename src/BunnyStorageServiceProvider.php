@@ -8,9 +8,6 @@ use Illuminate\Support\ServiceProvider;
 use League\Flysystem\Filesystem;
 use League\Flysystem\PathPrefixing\PathPrefixedAdapter;
 
-use Bangnokia\LaravelBunnyStorage\StreamingBunnyStorageAdapter;
-use Bangnokia\LaravelBunnyStorage\StreamingBunnyStorageClient;
-
 class BunnyStorageServiceProvider extends ServiceProvider
 {
     public function boot()
@@ -23,8 +20,8 @@ class BunnyStorageServiceProvider extends ServiceProvider
                 $pullZoneUrl = rtrim($pullZoneUrl, '/') . '/' . ltrim($root, '/');
             }
 
-            $adapter = new StreamingBunnyStorageAdapter(
-                new StreamingBunnyStorageClient(
+            $adapter = new BunnyStorageAdapter(
+                new BunnyStorageClient(
                     $config['storage_zone'],
                     $config['api_key'],
                     $config['region'],
@@ -32,9 +29,12 @@ class BunnyStorageServiceProvider extends ServiceProvider
                 $pullZoneUrl
             );
 
-            $pathPrefixedAdapter =  new PathPrefixedAdapter($adapter, $root);
-
-            $filesystem = new Filesystem($pathPrefixedAdapter, $config);
+            if ($root) {
+                $pathPrefixedAdapter =  new PathPrefixedAdapter($adapter, $root);
+                $filesystem = new Filesystem($pathPrefixedAdapter, $config);
+            } else {
+                $filesystem = new Filesystem($adapter, $config);
+            }
 
             return new FilesystemAdapter(
                 $filesystem,
