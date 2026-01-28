@@ -68,26 +68,6 @@ fclose($stream);
 Storage::disk('bunny')->writeStream('backup.zip', $stream);
 ```
 
-### Memory Comparison
-
-| Approach | File Size | Memory Usage |
-|----------|-----------|--------------|
-| String upload (old way) | 500MB | ~500MB |
-| Stream upload (this package) | 500MB | ~8-16MB |
-
-### Backward Compatibility
-
-The package remains fully backward compatible:
-
-```php
-// String uploads still work as before
-Storage::disk('bunny')->put('file.txt', 'content');
-
-// Stream uploads are now memory-efficient
-$stream = fopen('file.txt', 'r');
-Storage::disk('bunny')->put('file.txt', $stream);
-```
-
 
 ## Regions
 For a full region list, please visit the [BunnyCDN API documentation page](https://docs.bunny.net/reference/regionpublic_index).
