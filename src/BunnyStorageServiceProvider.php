@@ -12,12 +12,13 @@ class BunnyStorageServiceProvider extends ServiceProvider
 {
     public function boot()
     {
-        Storage::extend('bunny', function($app, $config) {
+        Storage::extend('bunny', function ($app, $config) {
             $root = $config['root'] ?? '';
             $pullZoneUrl = $config['pull_zone'] ?? '';
+            $tokenAuthKey = $config['token_auth_key'] ?? '';
 
             if ($pullZoneUrl && $root) {
-                $pullZoneUrl = rtrim($pullZoneUrl, '/') . '/' . ltrim($root, '/');
+                $pullZoneUrl = rtrim($pullZoneUrl, '/').'/'.ltrim($root, '/');
             }
 
             $adapter = new BunnyStorageAdapter(
@@ -29,8 +30,10 @@ class BunnyStorageServiceProvider extends ServiceProvider
                 $pullZoneUrl
             );
 
+            $adapter->setTokenAuthKey($tokenAuthKey);
+
             if ($root) {
-                $pathPrefixedAdapter =  new PathPrefixedAdapter($adapter, $root);
+                $pathPrefixedAdapter = new PathPrefixedAdapter($adapter, $root);
                 $filesystem = new Filesystem($pathPrefixedAdapter, $config);
             } else {
                 $filesystem = new Filesystem($adapter, $config);

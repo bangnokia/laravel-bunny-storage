@@ -19,6 +19,7 @@ This package automatically register the service provider and the storage disk fo
     'storage_zone' => env('BUNNY_STORAGE_ZONE'),
     'api_key' => env('BUNNY_API_KEY'),
     'region' => env('BUNNY_REGION', \PlatformCommunity\Flysystem\BunnyCDN\BunnyCDNRegion::DEFAULT),
+    'token_auth_key' => env('BUNNY_TOKEN_AUTH_KEY'), // optional if you want to generate temporaryUrls
     'pull_zone' => env('BUNNY_PULL_ZONE', ''), // optional if you want to access the file publicly
     'root' => '', // optional, you could set a specific folder for upload like '/uploads'
 ],
@@ -31,6 +32,7 @@ BUNNY_STORAGE_ZONE=your-storage-zone-name
 BUNNY_API_KEY=your-api-key (it's password in bunny)
 #BUNNY_REGION=your-region (optional)
 #BUNNY_PULL_ZONE="https://your-pull-zone-url" (optional if you want to access the file publicly)
+#BUNNY_TOKEN_AUTH_KEY=your-key (optional, CDN > Security > Token authentication > Url token authentication key)
 ```
 
 
