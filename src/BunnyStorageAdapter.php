@@ -2,7 +2,8 @@
 
 namespace Bangnokia\LaravelBunnyStorage;
 
-use Carbon\CarbonInterface;
+use DateTimeImmutable;
+use DateTimeInterface;
 use League\Flysystem\Config;
 use PlatformCommunity\Flysystem\BunnyCDN\BunnyCDNAdapter;
 
@@ -13,8 +14,16 @@ class BunnyStorageAdapter extends BunnyCDNAdapter
         return parent::publicUrl($path, new Config);
     }
 
-    public function getTemporaryUrl(string $path, CarbonInterface $carbon, array $options): string
+    public function getTemporaryUrl(string $path, DateTimeInterface|int $expiration, array $options = []): string
     {
-        return parent::temporaryUrl($path, $carbon->toDateTimeImmutable(), new Config($options));
+        if (method_exists(BunnyCDNAdapter::class, 'getTemporaryUrl')) {
+            return parent::getTemporaryUrl($path, $expiration, $options);
+        }
+
+        $expiresAt = $expiration instanceof DateTimeInterface
+            ? $expiration
+            : (new DateTimeImmutable('now'))->modify('+'.$expiration.' minutes');
+
+        return parent::temporaryUrl($path, $expiresAt, new Config($options));
     }
 }

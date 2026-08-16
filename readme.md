@@ -22,6 +22,11 @@ This package automatically register the service provider and the storage disk fo
     'token_auth_key' => env('BUNNY_TOKEN_AUTH_KEY'), // optional if you want to generate temporaryUrls
     'pull_zone' => env('BUNNY_PULL_ZONE', ''), // optional if you want to access the file publicly
     'root' => '', // optional, you could set a specific folder for upload like '/uploads'
+    'upload_options' => [
+        'connect_timeout' => 3,
+        'timeout' => 50,
+        'expect' => false,
+    ], // optional; defaults are 5, 3600, and true
 ],
 ```
 
@@ -61,12 +66,43 @@ When uploading large files (e.g., database backups, videos), the streaming adapt
 ```php
 // Efficient streaming - memory stays low (~8-16MB buffer)
 $stream = fopen('/path/to/large-file.zip', 'r');
-Storage::disk('bunny')->put('backup.zip', $stream);
+Storage::disk('bunny')->writeStream('backup.zip', $stream);
 fclose($stream);
 
-// This also works with writeStream
-Storage::disk('bunny')->writeStream('backup.zip', $stream);
+// Storage::disk('bunny')->put('backup.zip', $stream) also accepts an open stream.
 ```
+
+## Upload Transport Configuration
+
+The `upload_options` disk setting supports three Guzzle request options:
+`connect_timeout`, `timeout`, and `expect`. Timeouts must be positive numbers and
+`expect` must be a boolean. Other request options are rejected so disk
+configuration cannot override TLS verification, credentials, headers, or the
+request body.
+
+Choose a timeout below your API or queue worker deadline, with enough headroom
+for the application to handle a failed upload. Setting `expect` to `false`
+disables the `Expect: 100-Continue` handshake. Existing disks keep the upstream
+defaults listed in the example comment until these options are configured.
+
+Uploads are attempted once. Redirects are not followed, and every non-2xx
+response fails explicitly. The package does not automatically retry a failed PUT
+because Bunny may have stored the object before the connection was lost, and a
+stream may not be safe to replay. Reconcile the expected object before a bounded
+application-level retry.
+
+An upload-only Guzzle client can optionally be resolved from Laravel's container
+using a class name or binding string:
+
+```php
+'upload_client' => App\Support\BunnyUploadClient::class,
+```
+
+Register the binding in an application service provider so `config:cache`
+contains only the string. Use a dedicated client: it receives the Bunny
+`AccessKey` header and uploaded file body, so request logging must be disabled.
+Do not log or serialize transport exception request objects for the same reason.
+Do not attach automatic retry or redirect middleware to the custom client.
 
 
 ## Regions

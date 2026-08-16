@@ -3,7 +3,8 @@
     "description": "Use Bunny Storage in Laravel application",
     "type": "library",
     "require": {
-        "platformcommunity/flysystem-bunnycdn": "^3.3",
+        "guzzlehttp/guzzle": "^7.15.2",
+        "platformcommunity/flysystem-bunnycdn": "^3.3.9",
         "illuminate/filesystem": "^10|^11|^12|^13",
         "league/flysystem-path-prefixing": "^3.3"
     },
