@@ -53,6 +53,12 @@ jobs:
           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
+      - name: Allow EOL Laravel compatibility testing
+        if: matrix.laravel == '10.*' || matrix.laravel == '11.*'
+        run: |
+          composer config audit.block-insecure false
+          echo "::warning::Laravel ${{ matrix.laravel }} is EOL; known dependency advisories are allowed only for this compatibility job."
+
       - name: Install dependencies
         run: |
           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update

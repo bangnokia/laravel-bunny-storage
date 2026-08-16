@@ -9,6 +9,9 @@ This package is just a wrapper for Laravel of the [flysystem-bunnycdn](https://g
 composer require bangnokia/laravel-bunny-storage
 ```
 
+Laravel 10 and 11 remain available for legacy compatibility but are end of life.
+Use a currently security-supported Laravel release for production when possible.
+
 ## Configuration
 
 This package automatically register the service provider and the storage disk for the driver `bunny`. You can configure the disk in `config/filesystems.php`:
